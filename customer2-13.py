@@ -46,19 +46,15 @@ class customerList:
             self.data[n][fn] = val
         else:
             print('Could not set value at row ' + str(n) + ' col ' + str(fn))
-    
     def insert(self, n=0):
-        columns = ''
-        vals = ''
+        columns = str(self.fnl)
+        vals = ('%s, '*len(self.fnl))[:-2]
         tolkens = []
         for fieldname in self.fnl:
-            if fieldname in self.data[n].keys():
-                tolkens.append(self.data[n][fieldname])
-                vals +='%s,'
-                columns += '`'+ fieldname + '`,'
-        vals = vals[:-1]
-        columns = columns[:-1]
+            tolkens.append(self.data[n][fieldname])
+        columns = columns[1:-1].replace("'",'`')
         sql = 'INSERT INTO `' + self.tn + '` ' + '(' + columns + ') VALUES (' + vals + ');'
+        
         self.connect()
         cur = self.conn.cursor(pymysql.cursors.DictCursor)
         #print(sql)
@@ -76,35 +72,12 @@ class customerList:
         tolkens = (id)
         cur = self.conn.cursor(pymysql.cursors.DictCursor)
         cur.execute(sql,tolkens)
-    
-    def getByID(self,id):
-        sql = 'SELECT * FROM `' + self.tn + '` WHERE `' + self.pk + '` = %s;'
-        self.connect()
-        tolkens = (id)
-        #print(sql)
-        #print(tolkens)
-        cur = self.conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql,tolkens)
-        self.data = []
-        for row in cur:
-            self.data.append(row)
-            
-    def getAll(self, order = None):
-        sql = 'SELECT * FROM `' + self.tn  + '`;'
-        if order != None:
-            sql += ' ORDER BY `' + order+ '`'
-        self.connect()
-        #print(sql)
-        cur = self.conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql)
-        self.data = []
-        for row in cur:
-            self.data.append(row)
-            
+
     def verifyNew(self, n=0):
         self.errorList = []
+      
         for item in self.data[n]:
-            print(item)
+            #print(item)
             if self.data[n][self.pk]:
                 continue
             if len(self.data[n][item]) == 0:
@@ -116,32 +89,10 @@ class customerList:
             self.errorList.append('Subscribed needs to be True or False.')
         if len(self.data[n]['password']) <= 4:
             self.errorList.append('Password is too short, needs to be greater than 4 characters.')
-        #print(self.errorList)    
+        #print(self.errorList)
+            
         if len(self.errorList) > 0:
             return False
         else:
             return True
-    
-    def getByField(self,field, value):
-        sql = 'SELECT * FROM `' + self.tn + '` WHERE `' + field + '` = %s;'
-        self.connect()
-        tolkens = (value)
-        #print(sql)
-        #print(tolkens)
-        cur = self.conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql,tolkens)
-        self.data = []
-        for row in cur:
-            self.data.append(row)
-
-    def getLikeField(self,field, value):
-        sql = 'SELECT * FROM `' + self.tn + '` WHERE `' + field + '` = %s;'
-        self.connect()
-        tolkens = ('%' + value + '%')
-        #print(sql)
-        #print(tolkens)
-        cur = self.conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql,tolkens)
-        self.data = []
-        for row in cur:
-            self.data.append(row)  
+            
